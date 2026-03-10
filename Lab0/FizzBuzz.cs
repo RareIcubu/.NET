@@ -8,13 +8,13 @@ namespace Lab0
 {
     internal class FizzBuzz
     {
-        int TopNumber = 0;
-        public FizzBuzz(int TopNumber) {
-            this.TopNumber = TopNumber;
+        private readonly int _topNumber = 0;
+        public FizzBuzz(int topNumber) {
+            this._topNumber = topNumber;
         }
 
         public void Run() {
-            for (int i = 1; i <= TopNumber; i++) {
+            for (int i = 1; i <= _topNumber; i++) {
                 if (i % 3 == 0 && i % 5 == 0) {
                     Console.WriteLine("FizzBuzz");
                 } else if (i % 3 == 0) {

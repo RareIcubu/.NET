@@ -6,8 +6,8 @@ namespace Lab0
         static void Main(string[] args)
         {
             Console.WriteLine("Enter a number:");
-            int TopNumber = int.Parse(Console.ReadLine());
-            FizzBuzz fizzBuzz = new FizzBuzz(TopNumber);
+            int topNumber = int.Parse(Console.ReadLine());
+            FizzBuzz fizzBuzz = new FizzBuzz(topNumber);
             fizzBuzz.Run();
         }
     }
