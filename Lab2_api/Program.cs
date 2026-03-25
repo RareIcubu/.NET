@@ -28,8 +28,8 @@ internal class Program
 
                 if (downloadedMovie != null && downloadedMovie.title != null)
                 {
-                    db.Movies.Add(downloadedMovie); // Dodajemy do kontekstu [cite: 343]
-                    db.SaveChanges(); // Zapisujemy fizycznie w pliku SQLite [cite: 345]
+                    db.Movies.Add(downloadedMovie); 
+                    db.SaveChanges(); 
                     
                     Console.WriteLine("--- ZAPISANO NOWY FILM DO BAZY ---");
                     Console.WriteLine(downloadedMovie.ToString());
