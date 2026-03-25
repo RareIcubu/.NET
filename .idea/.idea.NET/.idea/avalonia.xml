@@ -5,6 +5,7 @@
       <map>
         <entry key="KnackpackGUI/App.axaml" value="KnackpackGUI/KnackpackGUI.csproj" />
         <entry key="KnackpackGUI/Views/MainWindow.axaml" value="KnackpackGUI/KnackpackGUI.csproj" />
+        <entry key="MovieGUI/Views/MainWindow.axaml" value="MovieGUI/MovieGUI.csproj" />
       </map>
     </option>
   </component>
