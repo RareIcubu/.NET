@@ -3,6 +3,9 @@
   <component name="AvaloniaProject">
     <option name="projectPerEditor">
       <map>
+        <entry key="ImageProcessingGUI/App.axaml" value="ImageProcessingGUI/ImageProcessingGUI.csproj" />
+        <entry key="ImageProcessingGUI/MainWindow.axaml" value="ImageProcessingGUI/ImageProcessingGUI.csproj" />
+        <entry key="ImageProcessingGUI/Views/MainWindow.axaml" value="ImageProcessingGUI/ImageProcessingGUI.csproj" />
         <entry key="KnackpackGUI/App.axaml" value="KnackpackGUI/KnackpackGUI.csproj" />
         <entry key="KnackpackGUI/Views/MainWindow.axaml" value="KnackpackGUI/KnackpackGUI.csproj" />
         <entry key="MovieGUI/Views/MainWindow.axaml" value="MovieGUI/MovieGUI.csproj" />

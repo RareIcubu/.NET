@@ -6,6 +6,8 @@
 
 [Laboratorium 2](./Lab2_api/DOC.md)
 
+[Laboratorium 3](./Parallel/DOC.md)
+
 ---
 ## Wykonał: 
 **Jakub Jasiński 280109**
