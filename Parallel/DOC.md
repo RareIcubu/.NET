@@ -21,6 +21,13 @@ Aby zweryfikować poprawność i zmierzyć realne przyspieszenie działania algo
 | Zrównoleglenie `Parallel.For` | **576 ms** |
 | Zrównoleglenie z `Thread` | **598 ms** |
 
+### Test 3: Macierz 700x700 (2 wątki)
+| Typ obliczeń | Średni czas wykonania |
+| - |-----------------------|
+| Obliczenia sekwencyjne | **2394 ms**           |
+| Zrównoleglenie `Parallel.For` | **1277 ms**           |
+| Zrównoleglenie z `Thread` | **1332 ms**           |
+
 ## Wnioski
 - Implementacja wielowątkowa znacznie skróciła czas wykonywania skomplikowanych operacji (jak np. trzykrotna zagnieżdżona pętla `for` przy tradycyjnym mnożeniu macierzy). Różnice w czasach są tym bardziej wyraźne, im większy jest rozmiar danych. Przyspieszenie dla macierzy 1000x1000 wyniosło ponad x4 w stosunku do rozwiązania sekwencyjnego.
 - W przypadku niskiego rozmiaru macierzy, zrównoleglenie niskopoziomowe za pomocą klasy `Thread` było nieznacznie szybsze, ze względu na mniejszy narzut wywołań wbudowanych w mechanizm `Parallel`. Z kolei przy większej porcji danych w teście dla 8 wątków wbudowany system zarządzania `Parallel.For` poradził sobie z rozłożeniem zadań wydajniej od manualnego równego podziału rzędów per `Thread`.

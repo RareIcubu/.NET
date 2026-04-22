@@ -9,8 +9,8 @@ internal class Program
 {
     static void Main(string[] args)
     {
-        int n = 300;
-        int t = 4;
+        int n = 700;
+        int t = 2;
         int iterations = 5;
 
         if (args.Length > 0 && int.TryParse(args[0], out int parsedN)) n = parsedN;
