@@ -1,0 +1,98 @@
+@page "/games"
+@using Microsoft.EntityFrameworkCore
+@using Zad3.Models
+@using Zad3.Data
+@inject ApplicationDbContext DB
+@rendermode InteractiveServer
+
+<PageTitle>Baza Gier</PageTitle>
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Baza Gier</h1>
+    <AuthorizeView>
+        <Authorized>
+            <a href="/games/create" class="btn btn-primary">Dodaj nową grę</a>
+        </Authorized>
+    </AuthorizeView>
+</div>
+@if (games == null)
+{
+    <p><em>Ładowanie...</em></p>
+}
+else
+{
+    <table class="table table-striped align-middle">
+        <thead>
+            <tr>
+                @* Dodane zdarzenia onClick na nagłówkach *@
+                <th style="cursor: pointer; user-select: none;" @onclick='() => Sort("Title")'>
+                    Tytuł @(GetSortIndicator("Title"))
+                </th>
+                <th style="cursor: pointer; user-select: none;" @onclick='() => Sort("Date")'>
+                    Data premiery @(GetSortIndicator("Date"))
+                </th>
+                <th style="cursor: pointer; user-select: none;" @onclick='() => Sort("Score")'>
+                    Średnia ocena @(GetSortIndicator("Score"))
+                </th>
+                <th>Akcje</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var game in games)
+            {
+                <tr>
+                    <td><strong>@game.Title</strong></td>
+                    <td>@(game.ReleaseDate?.ToShortDateString())</td>
+                    <td>@(game.VoteCount == 0 ? "Brak" : (game.TotalScore / (float)game.VoteCount).ToString("0.0"))</td>
+                    <td>
+                        <a href="/games/details/@game.Id" class="btn btn-sm btn-info text-white">Szczegóły / Oceń</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Game>? games;
+    private string currentSortColumn = "";
+    private bool isAscending = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        games = await DB.Games.ToListAsync();
+    }
+
+    // Logika sortowania
+    private void Sort(string column)
+    {
+        if (games == null) return;
+
+        if (currentSortColumn == column)
+        {
+            isAscending = !isAscending; // Odwrócenie kierunku
+        }
+        else
+        {
+            currentSortColumn = column;
+            isAscending = true; // Domyślnie rosnąco przy zmianie kolumny
+        }
+
+        games = column switch
+        {
+            "Title" => isAscending ? games.OrderBy(g => g.Title).ToList() : games.OrderByDescending(g => g.Title).ToList(),
+            "Date"  => isAscending ? games.OrderBy(g => g.ReleaseDate).ToList() : games.OrderByDescending(g => g.ReleaseDate).ToList(),
+            "Score" => isAscending 
+                ? games.OrderBy(g => g.VoteCount == 0 ? 0 : g.TotalScore / (float)g.VoteCount).ToList() 
+                : games.OrderByDescending(g => g.VoteCount == 0 ? 0 : g.TotalScore / (float)g.VoteCount).ToList(),
+            _ => games
+        };
+    }
+
+    // Wizualny wskaźnik kierunku sortowania
+    private string GetSortIndicator(string column)
+    {
+        if (currentSortColumn != column) return "↕";
+        return isAscending ? "↑" : "↓";
+    }
+}

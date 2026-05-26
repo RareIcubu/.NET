@@ -1,0 +1,54 @@
+@page "/games/create"
+@using Zad3.Models
+@using Zad3.Data
+@inject ApplicationDbContext DB
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@attribute [Authorize]
+<PageTitle>Dodaj Grę</PageTitle>
+
+<h1>Dodaj nową grę</h1>
+<hr />
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="game" OnValidSubmit="AddGame" FormName="createGame">
+            <DataAnnotationsValidator />
+            
+            <div class="mb-3">
+                <label class="form-label">Tytuł:</label>
+                <InputText @bind-Value="game.Title" class="form-control" placeholder="np. Gothic II" />
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Opis:</label>
+                <InputTextArea @bind-Value="game.Description" class="form-control" placeholder="np. Klasyczna przygoda, idealna do przejścia magiem..." />
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Data premiery:</label>
+                <InputDate @bind-Value="game.ReleaseDate" class="form-control" />
+            </div>
+            
+            <div class="mb-3">
+                <label class="form-label">Link do okładki (URL):</label>
+                <InputText @bind-Value="game.ImageUrl" class="form-control" placeholder="https://..." />
+            </div>
+            
+            <button type="submit" class="btn btn-primary">Zapisz do bazy</button>
+            <a href="/games" class="btn btn-secondary">Powrót</a>
+        </EditForm>
+    </div>
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private Game game { get; set; } = new Game();
+
+    private async Task AddGame()
+    {
+        DB.Games.Add(game);
+        await DB.SaveChangesAsync();
+        Navigation.NavigateTo("/games");
+    }
+}

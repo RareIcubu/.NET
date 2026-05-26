@@ -1,0 +1,61 @@
+@page "/sentiment"
+@rendermode InteractiveServer
+@using Microsoft.Extensions.ML
+@inject PredictionEnginePool<SentimentModel.ModelInput, SentimentModel.ModelOutput> PredictionPool
+
+<PageTitle>Analiza Nastroju</PageTitle>
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <h2>Jak się dzisiaj czujesz? 🧠</h2>
+
+            <div class="mb-3">
+                <textarea class="form-control" rows="4" @bind="userInput" placeholder="Wpisz tekst po angielsku..."></textarea>
+            </div>
+
+            <button class="btn btn-primary w-100 mb-4" @onclick="AnalyzeSentiment">
+                Analizuj mój nastrój
+            </button>
+
+            @if (prediction != null)
+            {
+                var label = prediction.PredictedLabel?.Trim().ToLower() ?? "nieznany";
+
+                var alertClass = label switch
+                {
+                    "positive" => "alert-success",
+                    "negative" => "alert-danger",
+                    "neutral"  => "alert-secondary",
+                    _          => "alert-warning" // Fallback dla błędów
+                };
+
+                var textLabel = label switch
+                {
+                    "positive" => "Pozytywny",
+                    "negative" => "Negatywny",
+                    "neutral"  => "Neutralny",
+                    _          => $"Nierozpoznany zwrot: [{prediction.PredictedLabel}]"
+                };
+                
+                <div class="alert @alertClass">
+                    <h4 class="alert-heading">Twój nastrój to: <strong>@textLabel</strong></h4>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private string userInput = string.Empty;
+    private SentimentModel.ModelOutput? prediction;
+
+    private void AnalyzeSentiment()
+    {
+        if (!string.IsNullOrWhiteSpace(userInput))
+        {
+            var input = new SentimentModel.ModelInput { Text = userInput };
+            prediction = PredictionPool.Predict(input);
+        }
+    }
+}

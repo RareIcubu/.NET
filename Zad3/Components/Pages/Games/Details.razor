@@ -1,0 +1,126 @@
+@page "/games/details/{Id:int}"
+@using Microsoft.Extensions.ML
+@using Microsoft.EntityFrameworkCore
+@using Zad3.Models
+@using Zad3.Data
+@inject ApplicationDbContext DB
+@inject PredictionEnginePool<SentimentModel.ModelInput, SentimentModel.ModelOutput> PredictionPool
+@rendermode InteractiveServer
+
+<PageTitle>Szczegóły Gry</PageTitle>
+
+@if (game is null)
+{
+    <p><em>Ładowanie lub gra nie istnieje...</em></p>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-4">
+            @if (!string.IsNullOrEmpty(game.ImageUrl))
+            {
+                <img src="@game.ImageUrl" alt="Okładka gry" class="img-fluid rounded shadow" />
+            }
+        </div>
+        <div class="col-md-8">
+            <h2>@game.Title</h2>
+            <p>@game.Description</p>
+            <p><strong>Data premiery:</strong> @game.ReleaseDate?.ToShortDateString()</p>
+            <hr />
+            
+            <h4>Średnia ocena: @(game.VoteCount == 0 ? "Brak ocen" : (game.TotalScore / (float)game.VoteCount).ToString("0.0"))</h4>
+            <p>Liczba oddanych głosów: @game.VoteCount</p>
+
+            <AuthorizeView>
+                <Authorized>
+                    <div class="card mt-4 p-3 shadow-sm">
+                        <h5>Zostaw recenzję</h5>
+                        <div class="mb-3">
+                            <label>Twoja ocena (1-10):</label>
+                            <input type="number" class="form-control w-25" min="1" max="10" @bind="newRate" />
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label>Krótka recenzja po angielsku (Nasze AI oceni Twój nastrój!):</label>
+                            <textarea class="form-control" rows="3" @bind="reviewText"></textarea>
+                        </div>
+
+                        <button class="btn btn-success" @onclick="SubmitVote">Dodaj recenzję</button>
+
+                        @if (!string.IsNullOrEmpty(mlResult))
+                        {
+                            <div class="alert mt-3 @alertClass">
+                                AI przeanalizowało Twój tekst. Wykryty nastrój: <strong>@mlResult</strong>
+                            </div>
+                        }
+                    </div>
+                </Authorized>
+                <NotAuthorized>
+                    <div class="alert alert-secondary mt-4 shadow-sm text-center">
+                        <i class="bi bi-lock-fill"></i> Musisz być zalogowany, aby dodać ocenę i recenzję.
+                    </div>
+                </NotAuthorized>
+            </AuthorizeView>
+            </div>
+    </div>
+    <div class="mt-4">
+        <a href="/games" class="btn btn-secondary">Wróć do listy</a>
+    </div>
+}
+
+@code {
+    [Parameter] // Parametr zjeżdżający prosto z URL
+    public int Id { get; set; }
+    
+    private Game? game;
+    private int newRate = 10;
+    private string reviewText = "";
+    private string mlResult = "";
+    private string alertClass = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Szukamy gry o podanym ID
+        game = await DB.Games.FirstOrDefaultAsync(g => g.Id == Id);
+    }
+
+    private async Task SubmitVote()
+    {
+        if (game != null && newRate >= 1 && newRate <= 10)
+        {
+            // Update w bazie
+            game.TotalScore += newRate;
+            game.VoteCount++;
+            
+            // ML.NET - z instrukcją switch zabezpieczającą stany
+            if (!string.IsNullOrWhiteSpace(reviewText))
+            {
+                var input = new SentimentModel.ModelInput { Text = reviewText }; 
+                var prediction = PredictionPool.Predict(input);
+                var label = prediction.PredictedLabel?.Trim().ToLower() ?? "nieznany";
+
+                alertClass = label switch
+                {
+                    "positive" => "alert-success",
+                    "negative" => "alert-danger",
+                    "neutral"  => "alert-secondary",
+                    _          => "alert-warning"
+                };
+
+                mlResult = label switch
+                {
+                    "positive" => "Pozytywny",
+                    "negative" => "Negatywny",
+                    "neutral"  => "Neutralny",
+                    _          => "Nierozpoznany"
+                };
+            }
+
+            DB.Games.Update(game);
+            await DB.SaveChangesAsync();
+            
+            // Czyszczenie pola testowego żeby nie trzeba było kasować ręcznie przed kolejną recenzją
+            reviewText = "";
+        }
+    }
+}
